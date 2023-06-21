@@ -10,8 +10,11 @@ import CheckBox from '../../components/checkBox/CheckBox'
 export default function Home() {
     // locals
     const [prefectures, setPrefectures] = useState([])
+    const [selectedPrefecture, setSelectedPrefecture] = useState('')
 
     // effects
+
+    // for fetching all prefectures
     useEffect(() => {
         axios.get('https://opendata.resas-portal.go.jp/api/v1/prefectures', {
             headers: {
@@ -22,9 +25,19 @@ export default function Home() {
         })
     }, [])
 
+    // functions
+    const setSelectedPrefectureHandler = (prefCode) => {
+        setSelectedPrefecture(prefCode)
+    }
+
     return (
         <div className='home'>
-            {prefectures.map(prefecture => <CheckBox prefName={prefecture.prefName}/>)}
+            {prefectures.map(prefecture => <CheckBox
+                key={prefecture.prefCode}
+                prefName={prefecture.prefName}
+                id={prefecture.prefCode}
+                setSelectedPrefectureHandler={setSelectedPrefectureHandler}
+            />)}
         </div>
     )
 }
