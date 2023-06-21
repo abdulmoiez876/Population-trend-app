@@ -10,7 +10,7 @@ import CheckBox from '../../components/checkBox/CheckBox'
 export default function Home() {
     // locals
     const [prefectures, setPrefectures] = useState([])
-    const [selectedPrefecture, setSelectedPrefecture] = useState('')
+    const [selectedPrefecture, setSelectedPrefecture] = useState(1)
 
     // effects
 
@@ -24,6 +24,17 @@ export default function Home() {
             setPrefectures(response.data.result);
         })
     }, [])
+    
+    // for fetching population composition
+    useEffect(() => {
+        axios.get(`https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear?prefCode=${selectedPrefecture}`, {
+            headers: {
+                "X-API-KEY": "bdT7H7IYRnkjk4FOj7LtCuTXbU5M6svWat7BxmOl"
+            }
+        }).then(response => {
+            console.log(response.data.result);
+        })
+    }, [selectedPrefecture])
 
     // functions
     const setSelectedPrefectureHandler = (prefCode) => {
@@ -37,6 +48,7 @@ export default function Home() {
                 prefName={prefecture.prefName}
                 id={prefecture.prefCode}
                 setSelectedPrefectureHandler={setSelectedPrefectureHandler}
+                selectedPrefecture={selectedPrefecture}
             />)}
         </div>
     )

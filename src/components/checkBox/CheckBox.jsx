@@ -11,7 +11,7 @@ export default function CheckBox(props) {
 
     return (
         <div className='checkBox'>
-            <input type="radio" name='check' id={props.id} onClick={setSelectedPrefectureHandler} />
+            <input type="radio" name='check' id={props.id} onClick={setSelectedPrefectureHandler} checked={props.id === props.selectedPrefecture} />
             <h6>{props.prefName}</h6>
         </div>
     )
