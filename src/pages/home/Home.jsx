@@ -13,6 +13,8 @@ export default function Home() {
     const [prefectures, setPrefectures] = useState([])
     const [selectedPrefecture, setSelectedPrefecture] = useState(1)
     const [populationComposition, setPopulationComposition] = useState()
+    const [populationType, setPopulationType] = useState('総人口')
+    const [dataToDisplay, setDataToDisplay] = useState([])
 
     // effects
 
@@ -38,20 +40,20 @@ export default function Home() {
         })
     }, [selectedPrefecture])
 
+    useEffect(() => {
+        setDataToDisplay(populationComposition?.data.filter(data => data.label === populationType))
+    }, [populationComposition, populationType])
+
     // functions
     const setSelectedPrefectureHandler = (prefCode) => {
         setSelectedPrefecture(prefCode)
     }
 
-    const data = [
-        { year: 2010, value: 2400 },
-        { year: 2011, value: 1800 },
-        { year: 2012, value: 3600 },
-        { year: 2013, value: 2400 },
-        { year: 2014, value: 3100 },
-        { year: 2015, value: 4000 },
-        { year: 2016, value: 5000 },
-    ];
+    const changeHandler = (event) => {
+        if (event.target.name === 'populationType') {
+            setPopulationType(event.target.value);
+        }
+    }
 
     return (
         <div className='home'>
@@ -65,14 +67,14 @@ export default function Home() {
                 />)}
             </div>
 
-            <select name="" id="">
+            <select name="populationType" value={populationType} onChange={changeHandler}>
                 <option value="総人口">Total Population</option>
                 <option value="年少人口">Population Under 15</option>
                 <option value="生産年齢人口">Working-Age Population</option>
                 <option value="老年人口">Elderly Population</option>
             </select>
 
-            <LineChart width={600} height={400} data={data}>
+            <LineChart width={800} height={500} data={dataToDisplay[0].data}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="year" />
                 <YAxis />
