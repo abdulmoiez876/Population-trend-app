@@ -11,6 +11,7 @@ export default function Home() {
     // locals
     const [prefectures, setPrefectures] = useState([])
     const [selectedPrefecture, setSelectedPrefecture] = useState(1)
+    const [populationComposition, setPopulationComposition] = useState()
 
     // effects
 
@@ -32,7 +33,7 @@ export default function Home() {
                 "X-API-KEY": "bdT7H7IYRnkjk4FOj7LtCuTXbU5M6svWat7BxmOl"
             }
         }).then(response => {
-            console.log(response.data.result);
+            setPopulationComposition(response.data.result);
         })
     }, [selectedPrefecture])
 
