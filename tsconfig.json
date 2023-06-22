@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
     "allowImportingTsExtensions": true,
-    "target": "es5",
-    "module": "commonjs",
-    "jsx": "react",
     "strict": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
     "resolveJsonModule": true,
-    "noEmit": true
+    "noEmit": true,
+    "module": "esnext",
+    "target": "es5",
+    "jsx": "react",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src"],
   "exclude": ["node_modules"]

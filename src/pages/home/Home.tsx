@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+// import axios from 'axios'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 // css
@@ -28,26 +28,33 @@ export default function Home() {
 
     // for fetching all prefectures
     useEffect(() => {
-        axios.get('https://opendata.resas-portal.go.jp/api/v1/prefectures', {
+        fetch("https://opendata.resas-portal.go.jp/api/v1/prefectures", {
             headers: {
                 "X-API-KEY": "bdT7H7IYRnkjk4FOj7LtCuTXbU5M6svWat7BxmOl"
             }
-        }).then(response => {
-            setSelectedPrefecture(1)
-            setPrefectures(response.data.result);
-            setLoading({ ...loading, prefecturesLoaded: true })
         })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                setSelectedPrefecture(1)
+                setPrefectures(data.result);
+                setLoading({ ...loading, prefecturesLoaded: true })
+                console.log(data.result);
+            });
     }, [])
 
     // for fetching population composition
     useEffect(() => {
         if (selectedPrefecture) {
-            axios.get(`https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear?prefCode=${selectedPrefecture}`, {
+            fetch(`https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear?prefCode=${selectedPrefecture}`, {
                 headers: {
                     "X-API-KEY": "bdT7H7IYRnkjk4FOj7LtCuTXbU5M6svWat7BxmOl"
                 }
             }).then(response => {
-                setPopulationComposition(response.data.result);
+                return response.json()
+            }).then(data => {
+                setPopulationComposition(data.result);
                 setLoading({ ...loading, populationCompositionLoaded: true })
             })
         }
