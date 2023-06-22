@@ -6,15 +6,16 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'r
 import './home.css'
 
 // components
-import CheckBox from '../../components/checkBox/CheckBox'
+import CheckBox from '../../components/checkBox/CheckBox.tsx'
 
 export default function Home() {
     // locals
-    const [prefectures, setPrefectures] = useState([])
-    const [selectedPrefecture, setSelectedPrefecture] = useState(null)
-    const [populationComposition, setPopulationComposition] = useState()
+    const [prefectures, setPrefectures] = useState<{ prefCode: Number, prefName: String }[]>([])
+    const [selectedPrefecture, setSelectedPrefecture] = useState<Number | null>(null)
+    const [populationComposition, setPopulationComposition] = useState<{ boundaryYear: Number, data: { data: { value: Number, year: Number }[], label: String }[] }>()
     const [populationType, setPopulationType] = useState('総人口')
-    const [dataToDisplay, setDataToDisplay] = useState([])
+    const [dataToDisplay, setDataToDisplay] = useState<{ value: Number, year: Number }[]>();
+
     const [loading, setLoading] = useState({
         prefecturesLoaded: false,
         populationCompositionLoaded: false,
@@ -32,7 +33,6 @@ export default function Home() {
                 "X-API-KEY": "bdT7H7IYRnkjk4FOj7LtCuTXbU5M6svWat7BxmOl"
             }
         }).then(response => {
-            console.log('1');
             setSelectedPrefecture(1)
             setPrefectures(response.data.result);
             setLoading({ ...loading, prefecturesLoaded: true })
@@ -47,7 +47,6 @@ export default function Home() {
                     "X-API-KEY": "bdT7H7IYRnkjk4FOj7LtCuTXbU5M6svWat7BxmOl"
                 }
             }).then(response => {
-                console.log('2');
                 setPopulationComposition(response.data.result);
                 setLoading({ ...loading, populationCompositionLoaded: true })
             })
@@ -55,7 +54,7 @@ export default function Home() {
     }, [selectedPrefecture])
 
     useEffect(() => {
-        setDataToDisplay(populationComposition?.data.filter(data => data.label === populationType))
+        setDataToDisplay(populationComposition?.data.filter(data => data.label === populationType)[0].data)
         setLoading({ ...loading, dataToDisplayLoaded: true })
     }, [populationComposition, populationType])
 
@@ -65,11 +64,11 @@ export default function Home() {
     }, []);
 
     // functions
-    const setSelectedPrefectureHandler = (prefCode) => {
+    const setSelectedPrefectureHandler = (prefCode: Number) => {
         setSelectedPrefecture(prefCode)
     }
 
-    const changeHandler = (event) => {
+    const changeHandler = (event: React.ChangeEvent<HTMLSelectElement>) => {
         if (event.target.name === 'populationType') {
             setPopulationType(event.target.value);
         }
@@ -92,7 +91,7 @@ export default function Home() {
                 <>
                     <div className='homePref'>
                         {prefectures.map(prefecture => <CheckBox
-                            key={prefecture.prefCode}
+                            key={prefecture.prefCode.toString()}
                             prefName={prefecture.prefName}
                             id={prefecture.prefCode}
                             setSelectedPrefectureHandler={setSelectedPrefectureHandler}
@@ -107,10 +106,10 @@ export default function Home() {
                         <option value="老年人口">Elderly Population</option>
                     </select>
 
-                    <LineChart width={width} height={height} data={loading.dataToDisplayLoaded && dataToDisplay[0]?.data}>
+                    <LineChart width={width} height={height} data={loading.dataToDisplayLoaded ? dataToDisplay : []}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="year" />
-                        <YAxis />
+                        <YAxis dataKey="value" />
                         <Tooltip />
                         <Legend />
                         <Line type="monotone" dataKey="value" stroke="#8884d8" />
