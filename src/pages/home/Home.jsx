@@ -20,6 +20,8 @@ export default function Home() {
         populationCompositionLoaded: false,
         dataToDisplayLoaded: false,
     })
+    const [width, setWidth] = useState(800);
+    const [height, setHeight] = useState(500);
 
     // effects
 
@@ -57,6 +59,11 @@ export default function Home() {
         setLoading({ ...loading, dataToDisplayLoaded: true })
     }, [populationComposition, populationType])
 
+    useEffect(() => {
+        responsiveChart();
+        window.addEventListener("resize", responsiveChart);
+    }, []);
+
     // functions
     const setSelectedPrefectureHandler = (prefCode) => {
         setSelectedPrefecture(prefCode)
@@ -68,7 +75,16 @@ export default function Home() {
         }
     }
 
-    console.log(loading);
+    const responsiveChart = () => {
+        const maxWidth = 800;
+        const maxHeight = 500;
+
+        const widthRatio = window.innerWidth / maxWidth;
+        const heightRatio = window.innerHeight / maxHeight;
+
+        setWidth(widthRatio * 500);
+        setHeight(heightRatio * 300);
+    };
 
     return (
         <div className='home'>
@@ -91,7 +107,7 @@ export default function Home() {
                         <option value="老年人口">Elderly Population</option>
                     </select>
 
-                    <LineChart width={800} height={500} data={loading.dataToDisplayLoaded && dataToDisplay[0]?.data}>
+                    <LineChart width={width} height={height} data={loading.dataToDisplayLoaded && dataToDisplay[0]?.data}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="year" />
                         <YAxis />
