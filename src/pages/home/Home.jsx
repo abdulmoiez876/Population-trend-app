@@ -11,10 +11,15 @@ import CheckBox from '../../components/checkBox/CheckBox'
 export default function Home() {
     // locals
     const [prefectures, setPrefectures] = useState([])
-    const [selectedPrefecture, setSelectedPrefecture] = useState(1)
+    const [selectedPrefecture, setSelectedPrefecture] = useState(null)
     const [populationComposition, setPopulationComposition] = useState()
     const [populationType, setPopulationType] = useState('総人口')
     const [dataToDisplay, setDataToDisplay] = useState([])
+    const [loading, setLoading] = useState({
+        prefecturesLoaded: false,
+        populationCompositionLoaded: false,
+        dataToDisplayLoaded: false,
+    })
 
     // effects
 
@@ -25,23 +30,31 @@ export default function Home() {
                 "X-API-KEY": "bdT7H7IYRnkjk4FOj7LtCuTXbU5M6svWat7BxmOl"
             }
         }).then(response => {
+            console.log('1');
+            setSelectedPrefecture(1)
             setPrefectures(response.data.result);
+            setLoading({ ...loading, prefecturesLoaded: true })
         })
     }, [])
 
     // for fetching population composition
     useEffect(() => {
-        axios.get(`https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear?prefCode=${selectedPrefecture}`, {
-            headers: {
-                "X-API-KEY": "bdT7H7IYRnkjk4FOj7LtCuTXbU5M6svWat7BxmOl"
-            }
-        }).then(response => {
-            setPopulationComposition(response.data.result);
-        })
+        if (selectedPrefecture) {
+            axios.get(`https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear?prefCode=${selectedPrefecture}`, {
+                headers: {
+                    "X-API-KEY": "bdT7H7IYRnkjk4FOj7LtCuTXbU5M6svWat7BxmOl"
+                }
+            }).then(response => {
+                console.log('2');
+                setPopulationComposition(response.data.result);
+                setLoading({ ...loading, populationCompositionLoaded: true })
+            })
+        }
     }, [selectedPrefecture])
 
     useEffect(() => {
         setDataToDisplay(populationComposition?.data.filter(data => data.label === populationType))
+        setLoading({ ...loading, dataToDisplayLoaded: true })
     }, [populationComposition, populationType])
 
     // functions
@@ -55,33 +68,42 @@ export default function Home() {
         }
     }
 
+    console.log(loading);
+
     return (
         <div className='home'>
-            <div className='homePref'>
-                {prefectures.map(prefecture => <CheckBox
-                    key={prefecture.prefCode}
-                    prefName={prefecture.prefName}
-                    id={prefecture.prefCode}
-                    setSelectedPrefectureHandler={setSelectedPrefectureHandler}
-                    selectedPrefecture={selectedPrefecture}
-                />)}
-            </div>
+            {loading.prefecturesLoaded && loading.populationCompositionLoaded ?
+                <>
+                    <div className='homePref'>
+                        {prefectures.map(prefecture => <CheckBox
+                            key={prefecture.prefCode}
+                            prefName={prefecture.prefName}
+                            id={prefecture.prefCode}
+                            setSelectedPrefectureHandler={setSelectedPrefectureHandler}
+                            selectedPrefecture={selectedPrefecture}
+                        />)}
+                    </div>
 
-            <select name="populationType" value={populationType} onChange={changeHandler}>
-                <option value="総人口">Total Population</option>
-                <option value="年少人口">Population Under 15</option>
-                <option value="生産年齢人口">Working-Age Population</option>
-                <option value="老年人口">Elderly Population</option>
-            </select>
+                    <select name="populationType" value={populationType} onChange={changeHandler}>
+                        <option value="総人口">Total Population</option>
+                        <option value="年少人口">Population Under 15</option>
+                        <option value="生産年齢人口">Working-Age Population</option>
+                        <option value="老年人口">Elderly Population</option>
+                    </select>
 
-            <LineChart width={800} height={500} data={dataToDisplay[0].data}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="year" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="value" stroke="#8884d8" />
-            </LineChart>
+                    <LineChart width={800} height={500} data={loading.dataToDisplayLoaded && dataToDisplay[0]?.data}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="year" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="value" stroke="#8884d8" />
+                    </LineChart>
+                </> :
+                <>
+                    <h1>Loading...</h1>
+                </>
+            }
 
         </div>
     )
